@@ -225,6 +225,11 @@ output "karpenter_iam_role_unique_id" {
   value       = module.karpenter.iam_role_unique_id
 }
 
+output "karpenter_k8s_service_account" {
+  description = "karpenter Kubernetes ServiceAccount name"
+  value = module.karpenter.service_account
+}
+
 ################################################################################
 # Node Termination Queue
 ################################################################################

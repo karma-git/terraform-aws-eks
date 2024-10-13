@@ -1,0 +1,9 @@
+module:
+  foo: egss
+  eks:
+    cluster_name: ex-karpenter
+    cluster_endpoint: https://D678266946C562927F7D1CEEAFC674E6.gr7.eu-west-1.eks.amazonaws.com
+  karpenter:
+    service_account: karpenter
+    queue_name: Karpenter-ex-karpenter
+    node_iam_role_name: Karpenter-ex-karpenter-20241013112738784800000012

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: helmfile-environment-values
+data:
+  values: |
+{{ toYaml .Values | nindent 4 }}
