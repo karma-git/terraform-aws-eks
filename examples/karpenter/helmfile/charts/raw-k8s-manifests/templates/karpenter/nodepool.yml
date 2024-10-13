@@ -1,0 +1,67 @@
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: default
+spec:
+  template:
+    spec:
+      nodeClassRef:
+        name: default
+      requirements:
+        - key: "karpenter.k8s.aws/instance-category"
+          operator: In
+          values: ["c"]
+        - key: "karpenter.k8s.aws/instance-cpu"
+          operator: In
+          values: ["2", "4", "8"]
+        - key: "karpenter.k8s.aws/instance-hypervisor"
+          operator: In
+          values: ["nitro"]
+        - key: "karpenter.k8s.aws/instance-generation"
+          operator: Gt
+          values: ["2"]
+  limits:
+    cpu: 25
+  disruption:
+    consolidationPolicy: WhenEmpty
+    consolidateAfter: 30s
+# ---
+### NOTE: won't to make gap-stack values overcomplicated because of nodeSelector/toleration
+# apiVersion: karpenter.sh/v1beta1
+# kind: NodePool
+# metadata:
+#   name: prom
+# spec:
+#   template:
+#     metadata:
+#       labels:
+#         ah.com/purpose: prom
+#     spec:
+#       taints:
+#         - key: ah.com/purpose
+#           value: "prom"
+#           effect: NoSchedule
+#       nodeClassRef:
+#         name: default
+#       requirements:
+#         - key: "karpenter.k8s.aws/instance-category"
+#           operator: In
+#           values: ["c", "m", "r"]
+#         - key: "karpenter.k8s.aws/instance-cpu"
+#           operator: In
+#           values: ["2"]
+#         - key: "karpenter.k8s.aws/instance-hypervisor"
+#           operator: In
+#           values: ["nitro"]
+#         - key: "karpenter.k8s.aws/instance-generation"
+#           operator: Gt
+#           values: ["2"]
+#         - key: "karpenter.sh/capacity-type"
+#           operator: In
+#           # values: ["on-demand"]
+#           values: ["spot"]
+#   limits:
+#     cpu: 4
+#   disruption:
+#     consolidationPolicy: WhenEmpty
+#     consolidateAfter: 30s

@@ -1,0 +1,58 @@
+environments:
+  default:
+    values:
+    - default.yaml
+---
+repositories:
+  - name: prometheus-community
+    url: https://prometheus-community.github.io/helm-charts
+
+helmDefaults:
+  # kubeContext: docker-desktop
+  kubeContext: ex-karpenter
+  createNamespace: true
+  timeout: 300
+  wait: true
+  atomic: true
+
+releases:
+  # chart https://gallery.ecr.aws/karpenter/karpenter
+  # values https://github.com/aws/karpenter-provider-aws/blob/v1.0.0/charts/karpenter/values.yaml
+  - name: karpenter
+    # chart: karpenter/karpenter
+    chart: oci://public.ecr.aws/karpenter/karpenter
+    # namespace: kube-karpenter
+    namespace: kube-system
+    version: 1.0.0
+    values:
+      - replicas: 1
+        serviceAccount:
+          name: {{ .Values.module.karpenter.service_account }}
+        settings:
+          clusterName: {{ .Values.module.eks.cluster_name }}
+          clusterEndpoint: {{ .Values.module.eks.cluster_endpoint }}
+          interruptionQueue: {{ .Values.module.karpenter.queue_name }}
+
+  - name: raw-k8s-manifests
+    chart: charts/raw-k8s-manifests
+    namespace: default
+    # using helmfile environment values
+    values:
+      - foo: test-env-values-override
+    needs:
+      - kube-system/karpenter
+
+  # ref: https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml
+  # downstream grafana chart https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
+  # NOTE: Grafana Alertmanager Prometheus
+  - name: gap-stack
+    chart: prometheus-community/kube-prometheus-stack
+    namespace: kube-monitoring
+    version: 58.4.0
+    values:
+      - fullnameOverride: gap-stack
+        grafana:
+          image:
+            tag: "11.0.0"
+          adminUser: admin
+          adminPassword: gap
